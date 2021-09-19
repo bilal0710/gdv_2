@@ -1,0 +1,6 @@
+﻿  cube_simple.cpp
+C:\GDV\gdv2_aufgabe\projects\example\cube_simple.cpp(411,8): warning C4101: 'rotationMatrix': unreferenced local variable
+C:\GDV\gdv2_aufgabe\projects\example\cube_simple.cpp(412,8): warning C4101: 'translationMatrix': unreferenced local variable
+  example.vcxproj -> C:\GDV\gdv2_aufgabe\projects\build\win32\example\Debug\example_debug.exe
+  ..\build\win32\example\Debug\example_debug.exe
+          1 file(s) copied.
