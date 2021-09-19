@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
+
+
 /docs
-/ssao
-/mandelbrot
+projects/ssao
+projects/mandelbrot
