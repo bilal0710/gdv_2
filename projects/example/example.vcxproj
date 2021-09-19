@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cube_simple.cpp" />
+    <ClCompile Include="billboard.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2226DB5F-4E89-48C0-8A1F-6F90641D0437}</ProjectGuid>
