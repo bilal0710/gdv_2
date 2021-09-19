@@ -156,7 +156,7 @@ float4 PSShader(PSInput _Input) : SV_Target
 	//     return AmbientLight;
 	//     return DiffuseLight;
 	//     return SpecularLight;
-	return g_ColorMap.Sample(g_ColorMapSampler, _Input.m_TexCoord);
+	return g_ColorMap.Sample(g_ColorMapSampler, _Input.m_TexCoord) * Light;
 }
 
 

@@ -1,6 +1,3 @@
-﻿  billboard.cpp
-C:\GDV\gdv2_Project\projects\example\billboard.cpp(383,8): warning C4101: 'rotationMatrix': unreferenced local variable
-C:\GDV\gdv2_Project\projects\example\billboard.cpp(384,8): warning C4101: 'translationMatrix': unreferenced local variable
-  example.vcxproj -> C:\GDV\gdv2_Project\projects\build\win32\example\Debug\example_debug.exe
+﻿  example.vcxproj -> C:\GDV\gdv2_Project\projects\build\win32\example\Debug\example_debug.exe
   ..\build\win32\example\Debug\example_debug.exe
           1 file(s) copied.
