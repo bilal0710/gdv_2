@@ -1,1 +1,2 @@
 C:\GDV\gdv2_aufgabe\projects\build\win32\example\Debug\example_debug.exe
+C:\GDV\gdv2_Project\projects\build\win32\example\Debug\example_debug.exe

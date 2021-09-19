@@ -6,7 +6,7 @@ cbuffer VSBuffer : register(b0)         // Register the constant buffer on slot 
 {
 	float4x4 g_ViewProjectionMatrix;
 	float4x4 g_WorldMatrix;
-	float3   g_WSEyePosition;                   // Position of the viewer in world space
+	float3   g_WSEyePosition;                   // we only know the billboard’s center position in world space, so we also need the camera’s vectors in world space.
 
 };
 
@@ -46,31 +46,33 @@ PSInput VSShader(VSInput _Input)
 
 	PSInput Output = (PSInput)0;
 
-	/*{ -4.0f, -4.0f, 0.0f, 0.0f, 1.0f, },
-	  { 4.0f, -4.0f, 0.0f, 1.0f, 1.0f,  },
-	  { 4.0f,  4.0f, 0.0f, 1.0f, 0.0f,  },
-	  { -4.0f,  4.0f, 0.0f, 0.0f, 0.0f, },*/
-
-	  // -------------------------------------------------------------------------------
-	  // Get the world space position.
-	  // -------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------
+	// Billboards are 2D elements incrusted in a 3D world
+	// What’s different with billboards is that they are positionned at a specific location, but their orientation is automatically computed so that it always faces the camera.
+	// -------------------------------------------------------------------------------
 
 
-	  // We need to create a matrix for the local coordinate system for the billboard of the given position.
+	// The y-base vector corresponds to { 0.0f, 1.0f, 0.0f }, since the billboard rotates only around the y-axis.
 
 	float3  yBasisvektor = { 0.0f, 1.0f, 0.0f };
 	yBasisvektor = normalize(yBasisvektor);
 
-	float3  zBasisvektor = -g_WSEyePosition + _Input.m_Position;
+	// The z-base vector is aligned with the y-axis and facing the eye.
+
+	float3  zBasisvektor = -g_WSEyePosition;
 	zBasisvektor.y = 0.0f;
 	zBasisvektor = normalize(zBasisvektor);
 
+	// The x-base vector ist the cross product of two vectors y-base vector and z-base vector
 	float3  xBasisvektor = cross(yBasisvektor, zBasisvektor);
 	xBasisvektor = normalize(xBasisvektor);
 
-	// The matrix to describe the local coordinate system is easily constructed:
+	// Create a matrix from the three vectors to multiply by the specified point 
 	float3x3 rotation = { xBasisvektor, yBasisvektor , zBasisvektor };
 
+	// -------------------------------------------------------------------------------
+	// Get the world space position.
+	// -------------------------------------------------------------------------------
 	float3 transform = mul(_Input.m_Position, rotation);
 	WSPosition = mul(float4(transform, 1.0f), g_WorldMatrix);
 

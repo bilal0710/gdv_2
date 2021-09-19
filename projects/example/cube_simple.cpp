@@ -412,14 +412,6 @@ bool CApplication::InternOnFrame()
 	float translationMatrix[16];
 
 	GetIdentityMatrix(VertexBuffer.m_WorldMatrix);
-	//GetTranslationMatrix(0.0f, 0.0f, 0.0f, VertexBuffer.m_WorldMatrix);
-
-	if (count < 16) {
-		std::cout << "translationMatrix= " << VertexBuffer.m_WorldMatrix[count] << std::endl;
-		count++;
-	}
-	//MulMatrix(translationMatrix, VertexBuffer.m_WorldMatrix, VertexBuffer.m_WorldMatrix);
-
 	MulMatrix(m_ViewMatrix, m_ProjectionMatrix, VertexBuffer.m_ViewProjectionMatrix);
 
 	VertexBuffer.m_ObjectPosition[0] = g_x;
@@ -448,10 +440,12 @@ bool CApplication::InternOnKeyEvent(unsigned int _Key, bool _IsKeyDown, bool _Is
 	if (_Key == 'A' && _IsKeyDown)
 	{
 		angle += g_Step;
+		std::cout << "The camera moves to the left" << std::endl;
 	}
 	if (_Key == 'D' && _IsKeyDown)
 	{
 		angle -= g_Step;
+		std::cout << "The camera moves to the right" << std::endl;
 	}
 	return true;
 }
