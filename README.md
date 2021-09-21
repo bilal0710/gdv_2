@@ -1,3 +1,3 @@
-# gdv2
+# GDV 2
  
 Billboard + Normal Mapping
