@@ -1,3 +1,22 @@
-﻿  example.vcxproj -> C:\GDV\gdv2_Project\projects\build\win32\example\Debug\example_debug.exe
+﻿  billboard.cpp
+C:\GDV\gdv2_Project\projects\example\billboard.cpp(383,8): warning C4101: 'rotationMatrix': unreferenced local variable
+C:\GDV\gdv2_Project\projects\example\billboard.cpp(384,8): warning C4101: 'translationMatrix': unreferenced local variable
+yoshix_debug.lib(yoshix.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_constant_buffer_manager.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_constant_buffer_manager.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_log.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_log.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_main.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_main.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_material_manager.obj) : warning LNK4099: PDB '' was not found with 'yoshix_debug.lib(yoshix_material_manager.obj)' or at ''; linking object as if no debug info
+yoshix_debug.lib(yoshix_math.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_math.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_mesh.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_mesh.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_material.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_material.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_constant_buffer.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_constant_buffer.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_input_layout.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_input_layout.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_mesh_manager.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_mesh_manager.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_pixel_shader.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_pixel_shader.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_texture_2d.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_texture_2d.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_texture_manager.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_texture_manager.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_vertex_shader.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_vertex_shader.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_shader_manager.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_shader_manager.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+  example.vcxproj -> C:\GDV\gdv2_Project\projects\build\win32\example\Debug\example_debug.exe
   ..\build\win32\example\Debug\example_debug.exe
           1 file(s) copied.

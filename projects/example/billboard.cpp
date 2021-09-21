@@ -80,6 +80,15 @@ private:
 	BHandle m_pMaterial;                // A pointer to a YoshiX material, spawning the surface of the mesh.
 	BHandle m_pMesh;                    // A pointer to a YoshiX mesh, which represents a single triangle.
 
+	// Camera Position
+	float m_eyePosX = 0.0f;
+	float m_eyePosZ = 15.0f;
+
+
+	float m_Step = 0.02f;
+	float m_angle = 4.7f;
+	float radius = 15.0f;
+
 private:
 	virtual bool InternOnCreateTextures();
 	virtual bool InternOnReleaseTextures();
@@ -98,12 +107,8 @@ private:
 
 };
 
-float g_x = 0.0f;
-float g_z = 15.0f;
-float g_Step = 0.02f;
-float distance = 12.0f;
-float angle = 4.7f;
-float radius = 15.0f;
+
+
 
 // -----------------------------------------------------------------------------
 
@@ -133,8 +138,8 @@ bool CApplication::InternOnCreateTextures()
 	// Load an image from the given path and create a YoshiX texture representing
 	// the image.
 	// -----------------------------------------------------------------------------
-	CreateTexture("..\\data\\images\\wall_color_map.dds", &m_pColorTexture);
-	CreateTexture("..\\data\\images\\wall_normal_map.dds", &m_pNormalTexture);
+	CreateTexture("..\\data\\images\\wall.jpg", &m_pColorTexture);
+	CreateTexture("..\\data\\images\\wall_normal.jpg", &m_pNormalTexture);
 	return true;
 }
 
@@ -186,8 +191,8 @@ bool CApplication::InternOnCreateShader()
 	// -----------------------------------------------------------------------------
 	// Load and compile the shader programs.
 	// -----------------------------------------------------------------------------
-	CreateVertexShader("..\\data\\shader\\simple.fx", "VSShader", &m_pVertexShader);
-	CreatePixelShader("..\\data\\shader\\simple.fx", "PSShader", &m_pPixelShader);
+	CreateVertexShader("..\\data\\shader\\billboard.fx", "VSShader", &m_pVertexShader);
+	CreatePixelShader("..\\data\\shader\\billboard.fx", "PSShader", &m_pPixelShader);
 
 	return true;
 }
@@ -362,9 +367,9 @@ bool CApplication::InternOnUpdate()
 	// stored in the 'm_ViewMatrix' matrix and uploaded in the 'InternOnFrame'
 	// method.
 	// -----------------------------------------------------------------------------
-	Eye[0] = g_x;  At[0] = 0.0f;  Up[0] = 0.0f;
+	Eye[0] = m_eyePosX;  At[0] = 0.0f;  Up[0] = 0.0f;
 	Eye[1] = 0.0f;  At[1] = 0.0f;  Up[1] = 1.0f;
-	Eye[2] = g_z;  At[2] = 0.0f;  Up[2] = 0.0f;
+	Eye[2] = m_eyePosZ;  At[2] = 0.0f;  Up[2] = 0.0f;
 
 	GetViewMatrix(Eye, At, Up, m_ViewMatrix);
 
@@ -380,16 +385,21 @@ bool CApplication::InternOnFrame()
 	// to be done before drawing the mesh, though not necessarily in this method.
 	// -----------------------------------------------------------------------------
 	SVertexBuffer VertexBuffer;
-	float rotationMatrix[16];
-	float translationMatrix[16];
 
+	// Set world matrix in the vertex buffer 
 	GetIdentityMatrix(VertexBuffer.m_WorldMatrix);
+
+	// Set the ViewProjectionMatrix in the vertex buffer 
 	MulMatrix(m_ViewMatrix, m_ProjectionMatrix, VertexBuffer.m_ViewProjectionMatrix);
 
-	VertexBuffer.m_CameraPosition[0] = g_x;
-	VertexBuffer.m_CameraPosition[1] = 0.0f;
-	VertexBuffer.m_CameraPosition[2] = g_z;
 
+	// Set cameraPos in the vertex buffer (y should always be 0)
+	VertexBuffer.m_CameraPosition[0] = m_eyePosX;
+	VertexBuffer.m_CameraPosition[1] = 0.0f;
+	VertexBuffer.m_CameraPosition[2] = m_eyePosZ;
+
+	// Set light in the vertex buffer
+	// ps: position of the light is fixed, so we can see the reflection
 	VertexBuffer.m_WSLightPosition[0] = 5.0f;
 	VertexBuffer.m_WSLightPosition[1] = 5.0f;
 	VertexBuffer.m_WSLightPosition[2] = -20.0f;
@@ -399,6 +409,8 @@ bool CApplication::InternOnFrame()
 
 	SPixelBuffer PixelBuffer;
 
+
+	// give the Lights Colors and Specular Color a fixed values
 	PixelBuffer.m_AmbientLightColor[0] = 0.2f;
 	PixelBuffer.m_AmbientLightColor[1] = 0.2f;
 	PixelBuffer.m_AmbientLightColor[2] = 0.2f;
@@ -426,9 +438,10 @@ bool CApplication::InternOnFrame()
 	// -----------------------------------------------------------------------------
 	DrawMesh(m_pMesh);
 
-
-	g_x = radius * cos(angle);
-	g_z = radius * sin(angle);
+	//  Camera Rotation around the center point 0,0,0 with the offset of angle 
+	// which can be changed by either pressing a or d 
+	m_eyePosX = radius * cos(m_angle);
+	m_eyePosZ = radius * sin(m_angle);
 
 	return true;
 }
@@ -436,14 +449,15 @@ bool CApplication::InternOnFrame()
 
 bool CApplication::InternOnKeyEvent(unsigned int _Key, bool _IsKeyDown, bool _IsAltDown)
 {
+	// Movement of the camera position
 	if (_Key == 'A' && _IsKeyDown)
 	{
-		angle += g_Step;
+		m_angle += m_Step;
 		std::cout << "The camera moves to the left" << std::endl;
 	}
 	if (_Key == 'D' && _IsKeyDown)
 	{
-		angle -= g_Step;
+		m_angle -= m_Step;
 		std::cout << "The camera moves to the right" << std::endl;
 	}
 	return true;
