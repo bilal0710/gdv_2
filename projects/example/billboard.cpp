@@ -51,16 +51,22 @@ private:
 	float   m_ProjectionMatrix[16];     // The projection matrix to transform a mesh from view space into clip space.
 
 	BHandle m_pVertexConstantBuffer;    // A pointer to a YoshiX constant buffer, which defines global data for a vertex shader.
-	BHandle m_pPixelConstantBuffer;
-
-	BHandle m_pColorTexture;                 // A pointer to a YoshiX texture, which is part of the material covering the mesh.
-	BHandle m_pNormalTexture;
+	BHandle m_pPixelConstantBuffer;		// A pointer to a YoshiX constant buffer, which defines global data for a pixel shader.
 
 	BHandle m_pVertexShader;            // A pointer to a YoshiX vertex shader, which processes each single vertex of the mesh.
 	BHandle m_pPixelShader;             // A pointer to a YoshiX pixel shader, which computes the color of each pixel visible of the mesh on the screen.
 
 	BHandle m_pMaterial;                // A pointer to a YoshiX material, spawning the surface of the mesh.
 	BHandle m_pMesh;                    // A pointer to a YoshiX mesh, which represents a single triangle.
+
+	BHandle m_pColorTexture;            //  A pointer to a texture that has a tree image to display.
+	BHandle m_pNormalTexture;			//  A pointer to a texture that has a normal for a tree image.
+
+	BHandle m_pMaterialWall;                // A pointer to a YoshiX material, spawning the surface of the mesh.
+	BHandle m_pMeshWall;                    // A pointer to a YoshiX mesh, which represents a single triangle.
+
+	BHandle m_pColorTextureWall;            //  A pointer to a texture that has a wall image to display.
+	BHandle m_pNormalTextureWall;			//  A pointer to a texture that has a normal for a wall image.
 
 	// Ground
 	BHandle m_pGroundVertexConstantBuffer;
@@ -78,7 +84,7 @@ private:
 
 	float m_Step = 0.02f;
 	float m_angle = 4.7f;
-	float radius = 2.0f;
+	float radius = 8.0f;
 
 private:
 	virtual bool InternOnCreateTextures();
@@ -108,11 +114,20 @@ CApplication::CApplication()
 	: m_FieldOfViewY(60.0f)        // Set the vertical view angle of the camera to 60 degrees.
 	, m_pVertexConstantBuffer(nullptr)
 	, m_pPixelConstantBuffer(nullptr)
-	, m_pColorTexture(nullptr)
-	, m_pNormalTexture(nullptr)
+
 	, m_pVertexShader(nullptr)
 	, m_pPixelShader(nullptr)
+
+	, m_pColorTexture(nullptr)
+	, m_pNormalTexture(nullptr)
 	, m_pMaterial(nullptr)
+	, m_pMesh(nullptr)
+
+	, m_pColorTextureWall(nullptr)
+	, m_pNormalTextureWall(nullptr)
+	, m_pMaterialWall(nullptr)
+	, m_pMeshWall(nullptr)
+
 	, m_pGroundVertexConstantBuffer(nullptr)
 	, m_pGroundVertexShader(nullptr)
 	, m_pGroundPixelShader(nullptr)
@@ -141,6 +156,9 @@ bool CApplication::InternOnCreateTextures()
 
 
 	CreateTexture("..\\data\\images\\ground.dds", &m_pGroundTexture);
+	CreateTexture("..\\data\\images\\wall_color_map.dds", &m_pColorTextureWall);
+	CreateTexture("..\\data\\images\\wall_normal_map.dds", &m_pNormalTextureWall);
+
 	return true;
 }
 
@@ -154,8 +172,12 @@ bool CApplication::InternOnReleaseTextures()
 	ReleaseTexture(m_pColorTexture);
 	ReleaseTexture(m_pNormalTexture);
 
-
 	ReleaseTexture(m_pGroundTexture);
+
+	ReleaseTexture(m_pColorTextureWall);
+	ReleaseTexture(m_pNormalTextureWall);
+
+
 
 	return true;
 }
@@ -263,7 +285,38 @@ bool CApplication::InternOnCreateMaterials()
 
 	CreateMaterial(MaterialInfo, &m_pMaterial);
 
+	// -----------------------------------------------------------------------------
+	// Create a material spawning the mesh. This material will be used for the
+	// ground, which should just be textured objects.
+	// -----------------------------------------------------------------------------
+	SMaterialInfo MaterialInfoWall;
 
+	MaterialInfoWall.m_NumberOfTextures = 2;                       // We sample one texture in the pixel shader.
+	MaterialInfoWall.m_pTextures[0] = m_pColorTextureWall;              // The handle to the texture.
+	MaterialInfoWall.m_pTextures[1] = m_pNormalTextureWall;
+
+	MaterialInfoWall.m_NumberOfVertexConstantBuffers = 1;                       // We need one vertex constant buffer to pass world matrix and view projection matrix to the vertex shader.
+	MaterialInfoWall.m_pVertexConstantBuffers[0] = m_pVertexConstantBuffer; // Pass the handle to the created vertex constant buffer.
+
+	MaterialInfoWall.m_NumberOfPixelConstantBuffers = 1;                       // We do not need any global data in the pixel shader.
+	MaterialInfoWall.m_pPixelConstantBuffers[0] = m_pPixelConstantBuffer;
+
+	MaterialInfoWall.m_pVertexShader = m_pVertexShader;         // The handle to the vertex shader.
+	MaterialInfoWall.m_pPixelShader = m_pPixelShader;          // The handle to the pixel shader.
+
+	MaterialInfoWall.m_NumberOfInputElements = 5;                       // The vertex shader requests the position and the texture coordinates as arguments.
+	MaterialInfoWall.m_InputElements[0].m_pName = "POSITION";              // The semantic name of the first argument, which matches exactly the first identifier in the 'VSInput' struct.
+	MaterialInfoWall.m_InputElements[0].m_Type = SInputElement::Float3;   // The position is a 3D vector with floating points.
+	MaterialInfoWall.m_InputElements[1].m_pName = "TANGENT";
+	MaterialInfoWall.m_InputElements[1].m_Type = SInputElement::Float3;
+	MaterialInfoWall.m_InputElements[2].m_pName = "BINORMAL";
+	MaterialInfoWall.m_InputElements[2].m_Type = SInputElement::Float3;
+	MaterialInfoWall.m_InputElements[3].m_pName = "NORMAL";
+	MaterialInfoWall.m_InputElements[3].m_Type = SInputElement::Float3;
+	MaterialInfoWall.m_InputElements[4].m_pName = "TEXCOORD";
+	MaterialInfoWall.m_InputElements[4].m_Type = SInputElement::Float2;   // The texture coordinates are a 2D vector with floating points.
+
+	CreateMaterial(MaterialInfoWall, &m_pMaterialWall);
 	// -----------------------------------------------------------------------------
 	// Create a material spawning the mesh. This material will be used for the
 	// ground, which should just be textured objects.
@@ -299,6 +352,7 @@ bool CApplication::InternOnReleaseMaterials()
 	// Important to release the material again when the application is shut down.
 	// -----------------------------------------------------------------------------
 	ReleaseMaterial(m_pMaterial);
+	ReleaseMaterial(m_pMaterialWall);
 	ReleaseMaterial(m_pGroundMaterial);
 	return true;
 }
@@ -362,6 +416,16 @@ bool CApplication::InternOnCreateMeshes()
 
 	CreateMesh(MeshInfo, &m_pMesh);
 
+	SMeshInfo WallMeshInfo;
+
+	WallMeshInfo.m_pVertices = &QuadVertices[0][0];      // Pointer to the first float of the first vertex.
+	WallMeshInfo.m_NumberOfVertices = 4;                        // The number of vertices.
+	WallMeshInfo.m_pIndices = &QuadIndices[0][0];       // Pointer to the first index.
+	WallMeshInfo.m_NumberOfIndices = 6;                        // The number of indices (has to be dividable by 3).
+	WallMeshInfo.m_pMaterial = m_pMaterialWall;              // A handle to the material covering the mesh.
+
+	CreateMesh(WallMeshInfo, &m_pMeshWall);
+
 
 
 	// -----------------------------------------------------------------------------
@@ -375,17 +439,12 @@ bool CApplication::InternOnCreateMeshes()
 		{ -4.0f, -1.0f,  4.0f, 0.0f, 0.0f  },
 	};
 
-	int GroundIndices[][3] =
-	{
-		{  0,  1,  2 },
-		{  0,  2,  3 },
-	};
 
 	SMeshInfo GroundMeshInfo;
 
 	GroundMeshInfo.m_pVertices = &GroundVertices[0][0];      // Pointer to the first float of the first vertex.
 	GroundMeshInfo.m_NumberOfVertices = 4;                            // The number of vertices.
-	GroundMeshInfo.m_pIndices = &GroundIndices[0][0];       // Pointer to the first index.
+	GroundMeshInfo.m_pIndices = &QuadIndices[0][0];       // Pointer to the first index.
 	GroundMeshInfo.m_NumberOfIndices = 6;                            // The number of indices (has to be dividable by 3).
 	GroundMeshInfo.m_pMaterial = m_pGroundMaterial;                  // A handle to the material covering the mesh.
 
@@ -404,6 +463,7 @@ bool CApplication::InternOnReleaseMeshes()
 	// Important to release the mesh again when the application is shut down.
 	// -----------------------------------------------------------------------------
 	ReleaseMesh(m_pMesh);
+	ReleaseMesh(m_pMeshWall);
 	ReleaseMesh(m_pGroundMesh);
 
 	return true;
@@ -541,22 +601,59 @@ bool CApplication::InternOnFrame()
 	// of the material on the GPU and render the mesh to the current render targets.
 	// -----------------------------------------------------------------------------
 
+
 	DrawMesh(m_pGroundMesh);
 
 	// Draw some objects at different positions
-	float pos0[3] = { -2.0f, 0.0f, 2.0f };
-	DrawObject(m_pMesh, pos0);
 
-	float pos1[3] = { 0.0f, 0.0f, 2.0f };
-	DrawObject(m_pMesh, pos1);
+	float pos3[3] = { -3.0f, 0.0f, 3.0f };
+	DrawObject(m_pMeshWall, pos3);
 
-	float pos2[3] = { 2.0f, 0.0f, 2.0f };
+	float pos4[3] = { 0.0f, 0.0f, 3.0f };
+	DrawObject(m_pMeshWall, pos4);
+
+	float pos5[3] = { 3.0f, 0.0f, 3.0f };
+	DrawObject(m_pMeshWall, pos5);
+
+
+
+	if (m_eyePosX > -5) {
+
+		float pos0[3] = { -2.0f, 0.0f, 1.0f };
+		DrawObject(m_pMesh, pos0);
+
+		float pos1[3] = { 0.0f, 0.0f, 1.0f };
+		DrawObject(m_pMesh, pos1);
+
+		float pos2[3] = { 2.0f, 0.0f, 1.0f };
+		DrawObject(m_pMesh, pos2);
+
+	}
+	else {
+		float pos2[3] = { 2.0f, 0.0f, 1.0f };
+		DrawObject(m_pMesh, pos2);
+
+		float pos1[3] = { 0.0f, 0.0f, 1.0f };
+		DrawObject(m_pMesh, pos1);
+
+		float pos0[3] = { -2.0f, 0.0f, 1.0f };
+		DrawObject(m_pMesh, pos0);
+
+	}
+
+
+
+
+	float pos2[3] = { 2.0f, 0.0f, 1.0f };
 	DrawObject(m_pMesh, pos2);
+
 
 	//  Camera Rotation around the center point 0,0,0 with the offset of angle 
 	// which can be changed by either pressing a or d 
 	m_eyePosX = radius * cos(m_angle);
 	m_eyePosZ = radius * sin(m_angle);
+
+
 
 	return true;
 }
@@ -569,11 +666,15 @@ bool CApplication::InternOnKeyEvent(unsigned int _Key, bool _IsKeyDown, bool _Is
 	{
 		m_angle += m_Step;
 		std::cout << "The camera moves to the left" << std::endl;
+		std::cout << "m_eyePosX " << m_eyePosX << std::endl;
+		std::cout << "m_eyePosZ " << m_eyePosZ << std::endl;
 	}
 	if (_Key == 'D' && _IsKeyDown)
 	{
 		m_angle -= m_Step;
 		std::cout << "The camera moves to the right" << std::endl;
+		std::cout << "m_eyePosX " << m_eyePosX << std::endl;
+		std::cout << "m_eyePosZ " << m_eyePosZ << std::endl;
 	}
 	if (_Key == 'W' && _IsKeyDown)
 	{
