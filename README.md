@@ -1,6 +1,6 @@
 # GDV2 Project
  
-Billboard + Normal Mapping
+## Billboard + Normal Mapping
 
 Billboards are 2D elements incrusted in a 3D world
 What’s different with billboards is that they are positionned at a specific location, 
