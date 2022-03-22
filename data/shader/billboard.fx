@@ -5,10 +5,9 @@
 cbuffer VSBuffer : register(b0)         // Register the constant buffer on slot 0
 {
 	float4x4 g_ViewProjectionMatrix;
-	float4x4 g_WorldMatrix;
+	float3   g_BillboardPosition;
 	float3   g_WSEyePosition;                   // we only know the billboard’s center position in world space, so we also need the camera’s vectors in world space.
 	float3   g_WSLightPosition;                 // Position of the light in world space (no light direction, so it is a point light)
-
 };
 
 cbuffer PSBuffer : register(b0)					// Register the constant buffer in the pixel constant buffer state on slot 0
@@ -40,7 +39,7 @@ sampler g_ColorMapSampler : register(s0);       // Register the sampler on sampl
 
 struct VSInput
 {
-	float3 m_Position		: POSITION;
+	float3 m_OSPosition		: POSITION;			// Object Space Position
 	float3 m_OSTangent		: TANGENT;          // Object Space Tangent
 	float3 m_OSBinormal		: BINORMAL;         // Object Space Binormal
 	float3 m_OSNormal		: NORMAL;           // Object Space Normal
@@ -49,13 +48,13 @@ struct VSInput
 
 struct PSInput
 {
-	float4 m_Position		: SV_POSITION;
+	float4 m_CSPosition		: SV_POSITION;		// Clip Space Position
 	float3 m_WSTangent		: TEXCOORD0;	    // World Space Tangent
 	float3 m_WSBinormal		: TEXCOORD1;	    // World Space Binormal
 	float3 m_WSNormal		: NORMAL;		    // World Space Normal
-	float3 m_WSView         : TEXCOORD2;
-	float3 m_WSLight        : TEXCOORD3;
-	float2 m_TexCoord		: TEXCOORD4;
+	float3 m_WSView         : TEXCOORD2;		// World Space View
+	float3 m_WSLight        : TEXCOORD3;		// World Space Light
+	float2 m_TexCoord		: TEXCOORD4;		// Actual Texture Coordinate
 };
 
 // -----------------------------------------------------------------------------
@@ -63,7 +62,6 @@ struct PSInput
 // -----------------------------------------------------------------------------
 PSInput VSShader(VSInput _Input)
 {
-	float4 WSPosition;
 
 	PSInput Output = (PSInput)0;
 
@@ -75,54 +73,57 @@ PSInput VSShader(VSInput _Input)
 
 	// The y-base vector corresponds to { 0.0f, 1.0f, 0.0f }, since the billboard rotates only around the y-axis.
 
-	float3  yBasisvektor = { 0.0f, 1.0f, 0.0f };
-	yBasisvektor = normalize(yBasisvektor);
+	float3  yBasisVector = { 0.0f, 1.0f, 0.0f };
+	yBasisVector = normalize(yBasisVector);
 
 	// The z-base vector is aligned with the y-axis and facing the eye.
 
-	float3  zBasisvektor = -g_WSEyePosition;
-	zBasisvektor.y = 0.0f;
-	zBasisvektor = normalize(zBasisvektor);
+	float3  zBasisVector = g_BillboardPosition - g_WSEyePosition;
+
+	zBasisVector.y = 0.0f;
+	zBasisVector = normalize(zBasisVector);
 
 	// The x-base vector ist the cross product of two vectors y-base vector and z-base vector
-	float3  xBasisvektor = cross(yBasisvektor, zBasisvektor);
-	xBasisvektor = normalize(xBasisvektor);
+	float3  xBasisVector = cross(yBasisVector, zBasisVector);
+	xBasisVector = normalize(xBasisVector);
 
 	// Create a matrix from the three vectors to multiply by the specified point 
-	float3x3 rotation = { xBasisvektor, yBasisvektor , zBasisvektor };
+	float3x3 rotationMatrix = { xBasisVector, yBasisVector , zBasisVector };
 
 	// -------------------------------------------------------------------------------
 	// Get the world space position.
 	// -------------------------------------------------------------------------------
-	float3 transform = mul(_Input.m_Position, rotation);
-	WSPosition = mul(float4(transform, 1.0f), g_WorldMatrix);
+	float3 WSPosition = g_BillboardPosition + mul(_Input.m_OSPosition, rotationMatrix);
+
 
 
 	// -------------------------------------------------------------------------------
 	// Get the clip space position.
 	// -------------------------------------------------------------------------------
 
+	Output.m_CSPosition = mul(float4(WSPosition, 1.0f), g_ViewProjectionMatrix);
 
-	Output.m_Position = mul(WSPosition, g_ViewProjectionMatrix);
 
-	// Store the texture coordinates for the pixel shader.
-	Output.m_TexCoord = _Input.m_TexCoord;
 
 	//The normal is still pointing straight out towards the viewer. 
 	// The tangent and binormal however run across the surface of the polygon with the tangent going along the x-axis and the binormal going along the y-axis. 
 
 	// Calculate the tangent vector and then normalize the final value.
-	Output.m_WSTangent = normalize(mul(_Input.m_OSTangent, (float3x3) g_WorldMatrix));
+	Output.m_WSTangent = normalize(mul(_Input.m_OSTangent, rotationMatrix));
 
 	// Calculate the binormal vector and then normalize the final value.
-	Output.m_WSBinormal = normalize(mul(_Input.m_OSBinormal, (float3x3) g_WorldMatrix));
+	Output.m_WSBinormal = normalize(mul(_Input.m_OSBinormal, rotationMatrix));
 
 	// Calculate the normal vector and then normalize the final value.
-	Output.m_WSNormal = normalize(mul(_Input.m_OSNormal, (float3x3) g_WorldMatrix));
+	Output.m_WSNormal = normalize(mul(_Input.m_OSNormal, rotationMatrix));
 
 
 	Output.m_WSView = g_WSEyePosition - WSPosition.xyz;
 	Output.m_WSLight = g_WSLightPosition - WSPosition.xyz;
+
+
+	// Store the texture coordinates for the pixel shader.
+	Output.m_TexCoord = _Input.m_TexCoord;
 
 	return Output;
 }
