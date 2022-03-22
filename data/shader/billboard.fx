@@ -5,7 +5,7 @@
 cbuffer VSBuffer : register(b0)         // Register the constant buffer on slot 0
 {
 	float4x4 g_ViewProjectionMatrix;
-	float3   g_BillboardPosition;
+	float3   g_WSBillboardPosition;
 	float3   g_WSEyePosition;                   // we only know the billboard’s center position in world space, so we also need the camera’s vectors in world space.
 	float3   g_WSLightPosition;                 // Position of the light in world space (no light direction, so it is a point light)
 };
@@ -71,58 +71,58 @@ PSInput VSShader(VSInput _Input)
 	// -------------------------------------------------------------------------------
 
 
-	// The y-base vector corresponds to { 0.0f, 1.0f, 0.0f }, since the billboard rotates only around the y-axis.
+	// The y-basis vector corresponds to { 0.0f, 1.0f, 0.0f }, since the billboard rotates only around the y-axis.
 
 	float3  yBasisVector = { 0.0f, 1.0f, 0.0f };
 	yBasisVector = normalize(yBasisVector);
 
-	// The z-base vector is aligned with the y-axis and facing the eye.
+	//The z-basis vector is facing the eye (Camera) .
 
-	float3  zBasisVector = g_BillboardPosition - g_WSEyePosition;
+	float3  zBasisVector = g_WSBillboardPosition - g_WSEyePosition;
 
 	zBasisVector.y = 0.0f;
 	zBasisVector = normalize(zBasisVector);
 
-	// The x-base vector ist the cross product of two vectors y-base vector and z-base vector
+	// The x-basis vector ist the cross product of two vectors y-base vector and z-base vector
 	float3  xBasisVector = cross(yBasisVector, zBasisVector);
 	xBasisVector = normalize(xBasisVector);
 
-	// Create a matrix from the three vectors to multiply by the specified point 
+	// Create a matrix from the three vectors to multiply them for the camera rotation
 	float3x3 rotationMatrix = { xBasisVector, yBasisVector , zBasisVector };
 
 	// -------------------------------------------------------------------------------
 	// Get the world space position.
 	// -------------------------------------------------------------------------------
-	float3 WSPosition = g_BillboardPosition + mul(_Input.m_OSPosition, rotationMatrix);
+	float3 WSPosition = g_WSBillboardPosition + mul(_Input.m_OSPosition, rotationMatrix);
 
 
 
 	// -------------------------------------------------------------------------------
 	// Get the clip space position.
 	// -------------------------------------------------------------------------------
-
 	Output.m_CSPosition = mul(float4(WSPosition, 1.0f), g_ViewProjectionMatrix);
 
+	// -------------------------------------------------------------------------------
+	// The normal is still pointing straight out towards the viewer. 
+	// the tangent and binormal however run across the surface of the polygon 
+	// with the tangent going along the x - axis and the binormal going along the y - axis.
+	// -------------------------------------------------------------------------------
 
-
-	//The normal is still pointing straight out towards the viewer. 
-	// The tangent and binormal however run across the surface of the polygon with the tangent going along the x-axis and the binormal going along the y-axis. 
-
-	// Calculate the tangent vector and then normalize the final value.
+	// Calculate the tangent, binormal and normal vector and then normalize the final value.
 	Output.m_WSTangent = normalize(mul(_Input.m_OSTangent, rotationMatrix));
-
-	// Calculate the binormal vector and then normalize the final value.
 	Output.m_WSBinormal = normalize(mul(_Input.m_OSBinormal, rotationMatrix));
-
-	// Calculate the normal vector and then normalize the final value.
 	Output.m_WSNormal = normalize(mul(_Input.m_OSNormal, rotationMatrix));
 
-
+	// -------------------------------------------------------------------------------
+	// Get camera and light directions in WS by subtrating their positions by the
+	// current point position.
+	// -------------------------------------------------------------------------------
 	Output.m_WSView = g_WSEyePosition - WSPosition.xyz;
 	Output.m_WSLight = g_WSLightPosition - WSPosition.xyz;
 
-
+	// -------------------------------------------------------------------------------
 	// Store the texture coordinates for the pixel shader.
+	// -------------------------------------------------------------------------------
 	Output.m_TexCoord = _Input.m_TexCoord;
 
 	return Output;
@@ -159,12 +159,13 @@ float4 PSShader(PSInput _Input) : SV_Target
 	// Expand the range of the normal value from (0, +1) to (-1, +1).
 	TSNormal = g_NormalMap.Sample(g_ColorMapSampler, _Input.m_TexCoord).rgb * 2.0f - 1.0f;
 
+
 	WSNormal = mul(TSNormal, TS2WSMatrix);
 	WSNormal = normalize(WSNormal);
 
-	AmbientLight = g_AmbientLightColor;
 
 	// Calculate the amount of light on this pixel based on the bump map normal value.
+	AmbientLight = g_AmbientLightColor;
 	DiffuseLight = g_DiffuseLightColor * max(dot(WSNormal, WSLight), 0.0f);
 	SpecularLight = g_SpecularLightColor * pow(max(dot(WSNormal, WSHalf), 0.0f), g_SpecularExponent);
 

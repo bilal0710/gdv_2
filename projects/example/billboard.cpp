@@ -6,33 +6,7 @@
 
 using namespace gfx;
 
-// -----------------------------------------------------------------------------
-// Defines a constant buffer on the CPU. Note that this struct matches exactly
-// the 'VSBuffer' in the 'simple.fx' file. For easy communication between CPU
-// and GPU it is always a good idea to rebuild the GPU struct on the CPU side.
-// Node that the size of a constant buffer on bytes has to be a multiple of 16.
-// For example the following is not possible:
-// 
-//     struct SVertexBuffer
-//     {
-//         float m_ViewProjectionMatrix[16];
-//         float m_WorldMatrix[16];
-//         float m_Scalar;
-//     };
-//
-// The problem is the final member 'm_Scalar'. The two matrices at the begin
-// require 2 * 16 * 4 = 128 bytes, which is dividable by 16. Adding the four
-// bytes of 'm_Scalar' results in 132 bytes, which cannot be divided by 16.
-// Instead you have to use a 4D vector, even if that implies a waste of memory.
-// 
-//     struct SVertexBuffer
-//     {
-//         float m_ViewProjectionMatrix[16];
-//         float m_WorldMatrix[16];
-//         float m_Vector[4];           => store 'm_Scalar' in the first component of the 4D vector and waste the other three ones.
-//     };
-//     
-// -----------------------------------------------------------------------------
+
 struct SVertexBuffer
 {
 	float m_ViewProjectionMatrix[16];       // Result of view matrix * projection matrix.
@@ -104,7 +78,7 @@ private:
 
 	float m_Step = 0.02f;
 	float m_angle = 4.7f;
-	float radius = 7.0f;
+	float radius = 2.0f;
 
 private:
 	virtual bool InternOnCreateTextures();
@@ -121,6 +95,7 @@ private:
 	virtual bool InternOnUpdate();
 	virtual bool InternOnFrame();
 	virtual bool InternOnKeyEvent(unsigned int _Key, bool _IsKeyDown, bool _IsAltDown);
+	virtual bool DrawObject(BHandle material, float pos[3]);
 
 };
 
@@ -161,11 +136,11 @@ bool CApplication::InternOnCreateTextures()
 	// Load an image from the given path and create a YoshiX texture representing
 	// the image.
 	// -----------------------------------------------------------------------------
-	CreateTexture("..\\data\\images\\wall.jpg", &m_pColorTexture);
-	CreateTexture("..\\data\\images\\wall_normal.jpg", &m_pNormalTexture);
+	CreateTexture("..\\data\\images\\tree_colored.png", &m_pColorTexture);
+	CreateTexture("..\\data\\images\\tree_normal.png", &m_pNormalTexture);
 
 
-	CreateTexture("..\\data\\images\\wall.dds", &m_pGroundTexture);
+	CreateTexture("..\\data\\images\\ground.dds", &m_pGroundTexture);
 	return true;
 }
 
@@ -474,20 +449,15 @@ bool CApplication::InternOnUpdate()
 }
 
 // -----------------------------------------------------------------------------
-int count = 0;
-bool CApplication::InternOnFrame()
-{
+
+
+bool CApplication::DrawObject(BHandle material, float pos[3]) {
 	// -----------------------------------------------------------------------------
 	// Upload the world matrix and the view projection matrix to the GPU. This has
 	// to be done before drawing the mesh, though not necessarily in this method.
 	// -----------------------------------------------------------------------------
 
-		//SetAlphaBlending(true);
-
 	SVertexBuffer VertexBuffer;
-	float pos[3] = { 0.0f, 0.0f, 0.0f };
-
-	//GetIdentityMatrix(VertexBuffer);
 
 
 	// Set the current billboard position
@@ -542,8 +512,17 @@ bool CApplication::InternOnFrame()
 	// Draw the mesh. This will activate the shader, constant buffers, and textures
 	// of the material on the GPU and render the mesh to the current render targets.
 	// -----------------------------------------------------------------------------
-	DrawMesh(m_pMesh);
+	DrawMesh(material);
 
+	return true;
+}
+
+
+
+bool CApplication::InternOnFrame()
+{
+
+	SetAlphaBlending(true);
 
 	// -----------------------------------------------------------------------------
 		// Upload the world matrix and the view projection matrix to the GPU. This has
@@ -563,6 +542,16 @@ bool CApplication::InternOnFrame()
 	// -----------------------------------------------------------------------------
 
 	DrawMesh(m_pGroundMesh);
+
+	// Draw some objects at different positions
+	float pos0[3] = { -2.0f, 0.0f, 2.0f };
+	DrawObject(m_pMesh, pos0);
+
+	float pos1[3] = { 0.0f, 0.0f, 2.0f };
+	DrawObject(m_pMesh, pos1);
+
+	float pos2[3] = { 2.0f, 0.0f, 2.0f };
+	DrawObject(m_pMesh, pos2);
 
 	//  Camera Rotation around the center point 0,0,0 with the offset of angle 
 	// which can be changed by either pressing a or d 
@@ -588,12 +577,12 @@ bool CApplication::InternOnKeyEvent(unsigned int _Key, bool _IsKeyDown, bool _Is
 	}
 	if (_Key == 'W' && _IsKeyDown)
 	{
-		m_eyePosY -= m_Step;
+		m_eyePosY += m_Step;
 		std::cout << "The camera comes near" << std::endl;
 	}
 	if (_Key == 'S' && _IsKeyDown)
 	{
-		m_eyePosY += m_Step;
+		m_eyePosY -= m_Step;
 		std::cout << "The camera comes near" << std::endl;
 	}
 	return true;
