@@ -682,7 +682,7 @@ bool CApplication::InternOnFrame()
 
 
 
-	//  Rotation of the camera around the midpoint 0,0,0 with the offset of the angle 
+	// Rotation of the camera around the midpoint 0,0,0 with the offset of the angle 
 	m_eyePosX = radius * cos(m_angle);
 	m_eyePosZ = radius * sin(m_angle);
 
