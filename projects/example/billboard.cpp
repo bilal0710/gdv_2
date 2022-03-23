@@ -4,6 +4,26 @@
 #include <math.h>
 #include <iostream>
 
+// To change the text align
+enum Position { LEFT, CENTRE, RIGHT };
+
+// The line lingth in the console
+int constexpr LINE_LENGTH = 119;
+std::string const HEADER(LINE_LENGTH, '=');
+
+// Set the Text Align in console
+void Print(Position _Position, std::string _Text, int _Linelength)
+{
+	int spaces = 0;
+	switch (_Position)
+	{
+	case CENTRE: spaces = (_Linelength - _Text.size()) / 2; break;
+	case RIGHT: spaces = _Linelength - _Text.size(); break;
+	}
+	if (spaces > 0) std::cout << std::string(spaces, ' ');
+	std::cout << _Text << '\n';
+}
+
 using namespace gfx;
 
 
@@ -82,9 +102,10 @@ private:
 	float m_eyePosZ = 0.0f;
 
 
-	float m_Step = 0.02f;
+	float m_Step = 0.04f;
 	float m_angle = 4.7f;
 	float radius = 8.0f;
+
 
 private:
 	virtual bool InternOnCreateTextures();
@@ -606,18 +627,22 @@ bool CApplication::InternOnFrame()
 
 	// Draw some objects at different positions
 
-	float pos3[3] = { -3.0f, 0.0f, 3.0f };
+
+	float pos3[3] = { -2.0f, 0.0f, 3.0f };
 	DrawObject(m_pMeshWall, pos3);
 
 	float pos4[3] = { 0.0f, 0.0f, 3.0f };
 	DrawObject(m_pMeshWall, pos4);
 
-	float pos5[3] = { 3.0f, 0.0f, 3.0f };
+
+	float pos5[3] = { 2.0f, 0.0f, 3.0f };
 	DrawObject(m_pMeshWall, pos5);
 
 
 
-	if (m_eyePosX > -5) {
+	// The sequence of rendered objects that determines 
+	// which object should be drawn first.
+	if (m_eyePosX > -1) {
 
 		float pos0[3] = { -2.0f, 0.0f, 1.0f };
 		DrawObject(m_pMesh, pos0);
@@ -627,6 +652,12 @@ bool CApplication::InternOnFrame()
 
 		float pos2[3] = { 2.0f, 0.0f, 1.0f };
 		DrawObject(m_pMesh, pos2);
+
+		float pos7[3] = { -1.0f, 0.0f, -1.0f };
+		DrawObject(m_pMesh, pos7);
+
+		float pos6[3] = { 1.0f, 0.0f, -1.0f };
+		DrawObject(m_pMesh, pos6);
 
 	}
 	else {
@@ -639,13 +670,14 @@ bool CApplication::InternOnFrame()
 		float pos0[3] = { -2.0f, 0.0f, 1.0f };
 		DrawObject(m_pMesh, pos0);
 
+		float pos6[3] = { 1.0f, 0.0f, -1.0f };
+		DrawObject(m_pMesh, pos6);
+
+		float pos7[3] = { -1.0f, 0.0f, -1.0f };
+		DrawObject(m_pMesh, pos7);
+
 	}
 
-
-
-
-	float pos2[3] = { 2.0f, 0.0f, 1.0f };
-	DrawObject(m_pMesh, pos2);
 
 
 	//  Camera Rotation around the center point 0,0,0 with the offset of angle 
@@ -662,14 +694,14 @@ bool CApplication::InternOnFrame()
 bool CApplication::InternOnKeyEvent(unsigned int _Key, bool _IsKeyDown, bool _IsAltDown)
 {
 	// Movement of the camera position
-	if (_Key == 'A' && _IsKeyDown)
+	if (_Key == 'D' && _IsKeyDown)
 	{
 		m_angle += m_Step;
 		std::cout << "The camera moves to the left" << std::endl;
 		std::cout << "m_eyePosX " << m_eyePosX << std::endl;
 		std::cout << "m_eyePosZ " << m_eyePosZ << std::endl;
 	}
-	if (_Key == 'D' && _IsKeyDown)
+	if (_Key == 'A' && _IsKeyDown)
 	{
 		m_angle -= m_Step;
 		std::cout << "The camera moves to the right" << std::endl;
@@ -678,13 +710,30 @@ bool CApplication::InternOnKeyEvent(unsigned int _Key, bool _IsKeyDown, bool _Is
 	}
 	if (_Key == 'W' && _IsKeyDown)
 	{
-		m_eyePosY += m_Step;
+		radius -= m_Step;
 		std::cout << "The camera comes near" << std::endl;
+		std::cout << "m_eyePosX " << m_eyePosX << std::endl;
+		std::cout << "m_eyePosZ " << m_eyePosZ << std::endl;
+
 	}
 	if (_Key == 'S' && _IsKeyDown)
 	{
+		radius += m_Step;
+		std::cout << "The camera goes far" << std::endl;
+		std::cout << "m_eyePosX " << m_eyePosX << std::endl;
+		std::cout << "m_eyePosZ " << m_eyePosZ << std::endl;
+
+	}
+	if (_Key == 38 && _IsKeyDown)
+	{
+		m_eyePosY += m_Step;
+		std::cout << "The camera goes up" << std::endl;
+
+	}
+	if (_Key == 40 && _IsKeyDown)
+	{
 		m_eyePosY -= m_Step;
-		std::cout << "The camera comes near" << std::endl;
+		std::cout << "The camera goes down" << std::endl;
 	}
 	return true;
 }
@@ -695,6 +744,31 @@ bool CApplication::InternOnKeyEvent(unsigned int _Key, bool _IsKeyDown, bool _Is
 
 void main()
 {
+
+
+	std::cout << HEADER << '\n';
+
+	std::cout << '\n';
+	Print(CENTRE, "\\----------- Billboard - Bilal Alnaani ---------/", LINE_LENGTH);
+	std::cout << '\n';
+	Print(CENTRE, "\\----------------------------------------------/", LINE_LENGTH);
+	std::cout << '\n';
+	Print(CENTRE, "\\-----------------Controls--------------------/", LINE_LENGTH);
+	std::cout << '\n';
+	Print(CENTRE, "\\--------------------------------------------------------------/", LINE_LENGTH);
+	std::cout << '\n';
+	Print(CENTRE, "\\------------------Move Camera left:  A----------------------/", LINE_LENGTH);
+	Print(CENTRE, "\\-----------------Move Camera right: D---------------------/", LINE_LENGTH);
+	Print(CENTRE, "\\----------------Move Camera forward: W------------------/", LINE_LENGTH);
+	Print(CENTRE, "\\---------------Move Camera backward: S----------------/", LINE_LENGTH);
+	Print(CENTRE, "\\------------Move Camera up: Arrowkey Up ------------/", LINE_LENGTH);
+	Print(CENTRE, "\\---------Move Camera down: Arrowkey Down----------/", LINE_LENGTH);
+	Print(CENTRE, "\\------------------------------------------------/", LINE_LENGTH);
+	std::cout << '\n';
+
+
+	std::cout << HEADER << '\n';
+
 	CApplication Application;
 
 	RunApplication(800, 600, "YoshiX Example", &Application);
