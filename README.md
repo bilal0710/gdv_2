@@ -7,7 +7,11 @@ but their orientation is automatically computed so that it always faces the came
 ## Camera Control Keys
 * Left: A
 * Right: D
-* Up: W
-* Down: S
+* Forward: W
+* Backward: S
+* Up: ArrowKey Up
+* Down: ArrowKey Down
+
+
 
 ## GDV-2 Project by Bilal Alnaani
