@@ -179,6 +179,7 @@ bool CApplication::InternOnCreateTextures()
 
 
 	CreateTexture("..\\data\\images\\ground.dds", &m_pGroundTexture);
+
 	CreateTexture("..\\data\\images\\wall_color_map.dds", &m_pColorTextureWall);
 	CreateTexture("..\\data\\images\\wall_normal_map.dds", &m_pNormalTextureWall);
 
