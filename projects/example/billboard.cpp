@@ -27,6 +27,7 @@ void Print(Position _Position, std::string _Text, int _Linelength)
 using namespace gfx;
 
 
+// Vertex Buffer for the billboard shader
 struct SVertexBuffer
 {
 	float m_ViewProjectionMatrix[16];       // Result of view matrix * projection matrix.
@@ -39,6 +40,7 @@ struct SVertexBuffer
 
 };
 
+// Pixel Buffer for the billboard shader
 struct SPixelBuffer
 {
 	float m_AmbientLightColor[4];
@@ -48,7 +50,7 @@ struct SPixelBuffer
 	float m_SpecularDummy[3];
 };
 
-// Vertex Buffer for the just textured shader
+// Vertex Buffer for the Ground shader
 struct SGroundBuffer
 {
 	float m_ViewProjectionMatrix[16];
@@ -66,27 +68,27 @@ public:
 private:
 
 
-	float   m_FieldOfViewY;             // Vertical view angle of the camera
-	float   m_ViewMatrix[16];           // The view matrix to transform a mesh from world space into view space.
-	float   m_ProjectionMatrix[16];     // The projection matrix to transform a mesh from view space into clip space.
+	float   m_FieldOfViewY;                  // Vertical view angle of the camera
+	float   m_ViewMatrix[16];                // The view matrix to transform a mesh from world space into view space.
+	float   m_ProjectionMatrix[16];          // The projection matrix to transform a mesh from view space into clip space.
 
-	BHandle m_pVertexConstantBuffer;    // A pointer to a YoshiX constant buffer, which defines global data for a vertex shader.
-	BHandle m_pPixelConstantBuffer;		// A pointer to a YoshiX constant buffer, which defines global data for a pixel shader.
+	BHandle m_pVertexConstantBuffer;         // A pointer to a YoshiX constant buffer, which defines global data for a vertex shader.
+	BHandle m_pPixelConstantBuffer;		     // A pointer to a YoshiX constant buffer, which defines global data for a pixel shader.
 
-	BHandle m_pVertexShader;            // A pointer to a YoshiX vertex shader, which processes each single vertex of the mesh.
-	BHandle m_pPixelShader;             // A pointer to a YoshiX pixel shader, which computes the color of each pixel visible of the mesh on the screen.
+	BHandle m_pVertexShader;                 // A pointer to a YoshiX vertex shader, which processes each single vertex of the mesh.
+	BHandle m_pPixelShader;                  // A pointer to a YoshiX pixel shader, which computes the color of each pixel visible of the mesh on the screen.
 
-	BHandle m_pMaterial;                // A pointer to a YoshiX material, spawning the surface of the mesh.
-	BHandle m_pMesh;                    // A pointer to a YoshiX mesh, which represents a single triangle.
+	BHandle m_pMaterial;                     // A pointer to a YoshiX material, spawning the surface of the mesh.
+	BHandle m_pMesh;                         // A pointer to a YoshiX mesh, which represents a single triangle.
 
-	BHandle m_pColorTexture;            //  A pointer to a texture that has a tree image to display.
-	BHandle m_pNormalTexture;			//  A pointer to a texture that has a normal for a tree image.
+	BHandle m_pColorTexture;                 //  A pointer to a texture that has a tree image to display.
+	BHandle m_pNormalTexture;			     //  A pointer to a texture that has a normal for a tree image.
 
-	BHandle m_pMaterialWall;                // A pointer to a YoshiX material, spawning the surface of the mesh.
-	BHandle m_pMeshWall;                    // A pointer to a YoshiX mesh, which represents a single triangle.
+	BHandle m_pMaterialWall;                 // A pointer to a YoshiX material, spawning the surface of the mesh.
+	BHandle m_pMeshWall;                     // A pointer to a YoshiX mesh, which represents a single triangle.
 
-	BHandle m_pColorTextureWall;            //  A pointer to a texture that has a wall image to display.
-	BHandle m_pNormalTextureWall;			//  A pointer to a texture that has a normal for a wall image.
+	BHandle m_pColorTextureWall;             //  A pointer to a texture that has a wall image to display.
+	BHandle m_pNormalTextureWall;			 //  A pointer to a texture that has a normal for a wall image.
 
 	// Ground
 	BHandle m_pGroundVertexConstantBuffer;
@@ -625,7 +627,7 @@ bool CApplication::InternOnFrame()
 
 	DrawMesh(m_pGroundMesh);
 
-	// Draw some objects at different positions
+	// create some objects at different positions
 
 
 	float pos3[3] = { -2.0f, 0.0f, 3.0f };
@@ -680,8 +682,7 @@ bool CApplication::InternOnFrame()
 
 
 
-	//  Camera Rotation around the center point 0,0,0 with the offset of angle 
-	// which can be changed by either pressing a or d 
+	//  Rotation of the camera around the midpoint 0,0,0 with the offset of the angle 
 	m_eyePosX = radius * cos(m_angle);
 	m_eyePosZ = radius * sin(m_angle);
 
@@ -698,30 +699,26 @@ bool CApplication::InternOnKeyEvent(unsigned int _Key, bool _IsKeyDown, bool _Is
 	{
 		m_angle += m_Step;
 		std::cout << "The camera moves to the left" << std::endl;
-		std::cout << "m_eyePosX " << m_eyePosX << std::endl;
-		std::cout << "m_eyePosZ " << m_eyePosZ << std::endl;
+
 	}
 	if (_Key == 'A' && _IsKeyDown)
 	{
 		m_angle -= m_Step;
 		std::cout << "The camera moves to the right" << std::endl;
-		std::cout << "m_eyePosX " << m_eyePosX << std::endl;
-		std::cout << "m_eyePosZ " << m_eyePosZ << std::endl;
+
 	}
 	if (_Key == 'W' && _IsKeyDown)
 	{
 		radius -= m_Step;
 		std::cout << "The camera comes near" << std::endl;
-		std::cout << "m_eyePosX " << m_eyePosX << std::endl;
-		std::cout << "m_eyePosZ " << m_eyePosZ << std::endl;
+
 
 	}
 	if (_Key == 'S' && _IsKeyDown)
 	{
 		radius += m_Step;
 		std::cout << "The camera goes far" << std::endl;
-		std::cout << "m_eyePosX " << m_eyePosX << std::endl;
-		std::cout << "m_eyePosZ " << m_eyePosZ << std::endl;
+
 
 	}
 	if (_Key == 38 && _IsKeyDown)

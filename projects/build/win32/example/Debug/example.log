@@ -1,4 +1,6 @@
 ﻿  billboard.cpp
+yoshix_debug.lib(yoshix_main.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_main.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
+yoshix_debug.lib(yoshix_math.obj) : warning LNK4099: PDB 'yoshix.pdb' was not found with 'yoshix_debug.lib(yoshix_math.obj)' or at 'C:\GDV\gdv2_Project\projects\build\win32\example\Debug\yoshix.pdb'; linking object as if no debug info
   example.vcxproj -> C:\GDV\gdv2_Project\projects\build\win32\example\Debug\example_debug.exe
   ..\build\win32\example\Debug\example_debug.exe
           1 file(s) copied.
