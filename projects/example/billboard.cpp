@@ -310,7 +310,7 @@ bool CApplication::InternOnCreateMaterials()
 
 	// -----------------------------------------------------------------------------
 	// Create a material spawning the mesh. This material will be used for the
-	// ground, which should just be textured objects.
+	// wall, which should just be textured objects.
 	// -----------------------------------------------------------------------------
 	SMaterialInfo MaterialInfoWall;
 
@@ -465,11 +465,11 @@ bool CApplication::InternOnCreateMeshes()
 
 	SMeshInfo GroundMeshInfo;
 
-	GroundMeshInfo.m_pVertices = &GroundVertices[0][0];      // Pointer to the first float of the first vertex.
+	GroundMeshInfo.m_pVertices = &GroundVertices[0][0];                // Pointer to the first float of the first vertex.
 	GroundMeshInfo.m_NumberOfVertices = 4;                            // The number of vertices.
-	GroundMeshInfo.m_pIndices = &QuadIndices[0][0];       // Pointer to the first index.
-	GroundMeshInfo.m_NumberOfIndices = 6;                            // The number of indices (has to be dividable by 3).
-	GroundMeshInfo.m_pMaterial = m_pGroundMaterial;                  // A handle to the material covering the mesh.
+	GroundMeshInfo.m_pIndices = &QuadIndices[0][0];					 // Pointer to the first index.
+	GroundMeshInfo.m_NumberOfIndices = 6;                           // The number of indices (has to be dividable by 3).
+	GroundMeshInfo.m_pMaterial = m_pGroundMaterial;                // A handle to the material covering the mesh.
 
 	CreateMesh(GroundMeshInfo, &m_pGroundMesh);
 
